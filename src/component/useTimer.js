@@ -1,22 +1,22 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {useEffect, useState } from 'react'
 
-export default function useTimer({setShowSecond, setShowMinute, setShowHour, setDisable, Disable}) {
+export default function useTimer({setShowSecond, setShowMinute, setShowHour, setDisable, Disable, setIsPlaying}) {
     
-    const [second , setSecond] = useState(5)
-    const [minute , setMinute] = useState(1)
-    const [hour , setHour] = useState(1)
+    const [second , setSecond] = useState(2)
+    const [minute , setMinute] = useState(0)
+    const [hour , setHour] = useState(0)
     
-    const [SwitchDark, setSwitchDark] = useState(localStorage.getItem("theme") ? () => localStorage.getItem("theme") : true )
+
+    const [SwitchDark, setSwitchDark] = useState(true)
     
     // Switch Mood
     function handleSwitchMood() {
         if (SwitchDark === true) {
             setSwitchDark(false)
-            localStorage.setItem("theme" , SwitchDark)
         }else if (SwitchDark === false) {
             setSwitchDark(true)
-            localStorage.setItem("theme" , SwitchDark)
         }
+
     }
 
     /* Start & Stop function */
@@ -37,12 +37,8 @@ export default function useTimer({setShowSecond, setShowMinute, setShowHour, set
 
     /* Correct Input */
     function handleChangeInput(e,params) {
-        if (e.target.value > 24) {
-            if (params === "H") {
-                setHour(24)
-            }
-        }
-        else if (e.target.value > 60 ) {
+        
+        if (e.target.value > 60 ) {
             if (params === "S") {
                 setSecond(60)
             }
@@ -81,6 +77,9 @@ export default function useTimer({setShowSecond, setShowMinute, setShowHour, set
     
     useEffect(()=>{ 
         let timer
+        if (second === 0 && minute === 0 && hour === 0) {
+            setIsPlaying(true)
+        }
         if (Disable) {
             timer = setInterval(() => {
             if (second > 0) {

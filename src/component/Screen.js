@@ -1,36 +1,58 @@
 import { Icon } from '@iconify/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import useTimer from './useTimer'
 
-export default function Screen() {
+import sound from '../voice/timer-song.mp3'
 
+export default function Screen() {
+    
     const [showSecond, setShowSecond] = useState(false)
     const [showMinute, setShowMinute] = useState(false)
     const [showHour, setShowHour] = useState(false)
     const [Disable, setDisable] = useState(false)
+    const [isPlaying , setIsPlaying] = useState(false)
 
-    const {second, minute, hour, handleCondition, handleSwitchMood, SwitchDark, handleChangeInput} = useTimer({setShowSecond, setShowMinute, setShowHour, setDisable, Disable})
-
+    let audio = new Audio(sound)
+    
+    
+    const {second, minute, hour, handleCondition, handleSwitchMood, SwitchDark, handleChangeInput} = useTimer({setShowSecond, setShowMinute, setShowHour, setDisable, Disable, setIsPlaying, audio})
+    
     let bgTimer = { backgroundColor : SwitchDark ? "rgb(234 234 234)" : "#1f1f1f" }
     let textColor = {color : SwitchDark && "#1f1f1f" }
-    let Shadow = {boxShadow: SwitchDark ?"2px 3px 0px 0px black" : "2px 3px 0px 0px white" }
- 
+    
+
     function handleShow(params) {
         switch (params) {
             case "S":
                 setShowSecond(true)
+                audio.pause()
                 break;
             case "M":
                 setShowMinute(true)
+                audio.pause()
                 break;
             case "H":
                 setShowHour(true)
+                audio.pause()
                 break;
             default:
                 break;
         }    
+        setIsPlaying(false)
         setDisable(false)  
+        console.log(Disable);
     }
+    
+    useEffect(()=>{
+        if (second === 0 && minute === 0 && hour === 0 ) {
+            setDisable(false)
+        }
+        if (isPlaying) {
+            audio.play()    
+            audio.loop = true
+        }
+        
+    },[isPlaying, Disable, second, minute, hour, showSecond, showMinute, showHour])
 
 
   return (
@@ -42,7 +64,7 @@ export default function Screen() {
             
             
             <div className='Mood' onClick={handleSwitchMood}>
-                <button className='circle' style={{right : SwitchDark ? "6px" : "40px"}} onClick={handleSwitchMood}>{SwitchDark ? "🌑" : "🌞"}</button>
+                <button className='circle' style={{right : SwitchDark ? "6px" : "40px"}} >{SwitchDark ? "🌑" : "🌞"}</button>
             </div>
         </nav>
 
@@ -121,8 +143,8 @@ export default function Screen() {
         
         {/* Start & Stop */}
         <div className='running'>
-            <button onClick={() => handleCondition("Start") } disabled={Disable} className='btn' style={{...textColor, ...Shadow}}>start</button>
-            <button onClick={() => handleCondition("Stop") } disabled={!Disable} className='btn' style={{...textColor, ...Shadow}}>stop</button>
+            <button onClick={() => handleCondition("Start") } disabled={second === 0 && minute === 0 && hour === 0 ? !Disable : Disable} className="btn" style={{...textColor, boxShadow: !Disable ? `2px 3px 0px 0px ${SwitchDark ? "black" : "white" }` : "none"}}>start</button>
+            <button onClick={() => handleCondition("Stop") } disabled={!Disable} className='btn' style={{...textColor, boxShadow: Disable ? `2px 3px 0px 0px ${SwitchDark ? "black" : "white" }` : "none"}}>stop</button>
         </div>
 
     </section>
